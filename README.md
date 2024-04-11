@@ -9,3 +9,7 @@ Either add this as a MonoBehaviour to the scene (in which case the logs will be 
 
 ### Future
 Considering automatically purging machine-related info and personal details like file paths from the logs
+
+### Notes
+Unity only creates log files on builds, running this in the editor will copy log files that have been created by previous builds (including "Build And Run").
+Also note that Unity doesn't update the project folder view until the editor has lost and regained focus. So the log folder may be empty until you click on another window, and then return to Unity, which will trigger the refresh)
