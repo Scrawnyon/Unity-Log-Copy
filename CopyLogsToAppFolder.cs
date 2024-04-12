@@ -71,6 +71,11 @@ public class CopyLogsToAppFolder : MonoBehaviour
                     File.Delete(_metaFile);
             }
         }
+
+        // Trigger database refresh so we see the newly created log files immediately
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
     }
 
     /// <summary>
