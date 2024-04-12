@@ -40,7 +40,7 @@ public class CopyLogsToAppFolder : MonoBehaviour
         {
             // Convert the file's last write time to our custom DateTime string
             DateTime _lastWriteTime = File.GetLastWriteTime(_logFiles[i]);
-            string _lastWriteTimeString = LastWriteTimeToFileName(_lastWriteTime);
+            string _lastWriteTimeString = LastWriteTimeToDateString(_lastWriteTime);
 
             // If this file has already been copied, keep moving
             if (_existingWriteTimeStrings.Contains(_lastWriteTimeString))
@@ -49,8 +49,7 @@ public class CopyLogsToAppFolder : MonoBehaviour
             // Create new file to target folder
             string _newFileName = LastWriteTimeToFileName(_lastWriteTime);
             string _newFilePath = Path.Combine(_targetFolderPath, _newFileName + LOG_EXTENSION);
-            string _newLogContents = File.ReadAllText(_logFiles[i]);
-            File.WriteAllText(_newFilePath, _newLogContents);
+            File.Copy(_logFiles[i], _newFilePath);
 
             _numFilesStored++;
         }
