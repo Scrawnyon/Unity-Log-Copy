@@ -49,8 +49,12 @@ public class CopyLogsToAppFolder : MonoBehaviour
             // Create new file to target folder
             string _newFileName = LastWriteTimeToFileName(_lastWriteTime);
             string _newFilePath = Path.Combine(_targetFolderPath, _newFileName + LOG_EXTENSION);
-            File.Copy(_logFiles[i], _newFilePath);
 
+            // Read and sanitize filepaths from the file
+            string[] _newFileContent = File.ReadAllLines(_logFiles[i]);
+            _newFileContent = RemoveFilePaths(_newFileContent);
+
+            File.WriteAllLines(_newFilePath, _newFileContent);
             _numFilesStored++;
         }
 
@@ -76,6 +80,50 @@ public class CopyLogsToAppFolder : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.Refresh();
 #endif
+    }
+
+    static string[] RemoveFilePaths(string[] _contentLines)
+    {
+        // Cut data path into sections and see how far we can reach on any line
+        string[] _dataPathSections = Application.dataPath.Split('\\', '/');
+        for (int i = 0; i < _contentLines.Length; i++)
+        {
+            string _content = _contentLines[i];
+
+            int _contentModifiedAtIndex = -1;
+            for (int ii = 0; ii < _dataPathSections.Length; ii++)
+            {
+                string _section = _dataPathSections[ii];
+
+                // If this part of the data path is valid, check the next one
+                if (_content.Contains(_section))
+                {
+                    int _startIndex = _content.IndexOf(_section);
+                    _content = _content.Remove(_startIndex, _section.Length);
+
+                    // Remove leftover backslash if it exists
+                    if (_content.Length > _startIndex && (_content[_startIndex] == '\\' || _content[_startIndex] == '/'))
+                        _content = _content.Remove(_startIndex, 1);
+
+                    _contentModifiedAtIndex = _startIndex;
+                }
+                else
+                {
+                    // If path was purged, add a note
+                    if (_contentModifiedAtIndex != -1)
+                        _content = _content.Insert(_contentModifiedAtIndex, "<Filepath purged>/");
+                    break;
+                }
+            }
+
+            _contentLines[i] = _content;
+
+            // If we purged a path, check the line again in case we find more paths
+            if (_contentModifiedAtIndex != -1)
+                i--;
+        }
+
+        return _contentLines;
     }
 
     /// <summary>
