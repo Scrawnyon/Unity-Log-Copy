@@ -51,7 +51,8 @@ public class CopyLogsToAppFolder : MonoBehaviour
             string _newFilePath = Path.Combine(_targetFolderPath, _newFileName + LOG_EXTENSION);
 
             // Read and sanitize filepaths from the file
-            string[] _newFileContent = File.ReadAllLines(_logFiles[i]);
+            File.Copy(_logFiles[i], _newFilePath);
+            string[] _newFileContent = File.ReadAllLines(_newFilePath);
             _newFileContent = RemoveFilePaths(_newFileContent);
 
             File.WriteAllLines(_newFilePath, _newFileContent);
